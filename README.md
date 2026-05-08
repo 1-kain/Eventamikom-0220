@@ -11,3 +11,4 @@ Kalvin Wibowo
 <br> Tambahan Link Ticket: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/my-ticket
 <br> Link Tugas 2 Kategori: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin/categories
 <br> Tugas 3 Screenshoot database tabel event: https://imgur.com/a/WUurv2l
+<br> Link Tugas 4 CRUD: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin
