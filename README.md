@@ -9,5 +9,5 @@ Kalvin Wibowo
 <br> Link Tugas 2 Detail Event: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/event/1
 <br> Link Tugas 2 Checkout: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/event/1
 <br> Tambahan Link Ticket: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/my-ticket
-<br> Link Tugas 3 Kategori: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin/categories
-<br> Tugas 4 Screenshoot database tabel event: https://imgur.com/a/WUurv2l
+<br> Link Tugas 2 Kategori: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin/categories
+<br> Tugas 3 Screenshoot database tabel event: https://imgur.com/a/WUurv2l

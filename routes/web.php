@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
 
@@ -44,7 +45,11 @@ Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 //Rute Admin Area
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/events', [EventController::class, 'indexAdmin'])->name('events.index');
+    Route::resource('events', EventAdminController::class);
     Route::get('/transactions',[TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    // Route::get('/events', [EventAdminController::class, 'index'])->name('events.index');
+    // Route::get('/events/create', [EventAdminController::class, 'create'])->name('events.create');
+    // Route::get('/events/destroy', [EventAdminController::class, 'destroy'])->name('events.destroy');
+    // Route::get('/events/edit', [EventAdminController::class, 'edit'])->name('events.edit');
     });
