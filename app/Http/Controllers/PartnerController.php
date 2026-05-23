@@ -12,8 +12,8 @@ class PartnerController extends Controller
         $search = $request->input('search');
 
         $partners = Partner::when($search, function ($query, $search) {
-            return $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
-    })->latest()->get();
+            return $query->where('name', 'LIKE', '%' . $search . '%');
+        })->latest()->get();
 
         return view('admin.partners.index', compact('partners', 'search'));
     }
