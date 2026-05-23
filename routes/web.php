@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PartnerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -46,8 +47,9 @@ Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('events', EventAdminController::class);
-    Route::get('/transactions',[TransactionController::class, 'index'])->name('transactions.index');
+    Route::resource('categories', CategoryController::class);
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::resource('partners', PartnerController::class);
     // Route::get('/events', [EventAdminController::class, 'index'])->name('events.index');
     // Route::get('/events/create', [EventAdminController::class, 'create'])->name('events.create');
     // Route::get('/events/destroy', [EventAdminController::class, 'destroy'])->name('events.destroy');
