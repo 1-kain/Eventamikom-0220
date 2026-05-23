@@ -13,7 +13,7 @@ class CategoryController extends Controller
     {
         $search = $request->input('search');
         $categories = Category::when($search, function ($query, $search) {
-            return $query->where('name', 'LIKE', '%' . $search . '%');
+            return $query->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%']);
         })->latest()->get();
         return view('admin.categories.index', compact('categories', 'search'));
     }
