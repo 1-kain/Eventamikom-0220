@@ -20,12 +20,6 @@
             <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('events.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
                 Kelola Event
             </a>
-            <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-            Kelola Kategori
-            </a>
-            <a href="{{ route('admin.partners.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.partners.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-            Kelola Partner
-            </a>
         </nav>
     </aside>
 
