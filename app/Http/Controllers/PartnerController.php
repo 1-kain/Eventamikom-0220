@@ -18,56 +18,60 @@ class PartnerController extends Controller
 
         return view('admin.partners.index', compact('partners', 'search'));
     }
-
-
+    
     public function store(Request $request)
     {
         $request->validate([
-        'name' => 'required|string|max:255',
-        'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
-        'website_url' => 'required|url',
-        ]);
-        $path = $request->file('logo')->store('partners', 'public');
-        Partner::create([
-        'name' => $request->name,
-        'logo_path' => $path, 
-        'website_url' => $request->website_url,
+            'name' => 'required|string|max:255',
+            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
+            'website_url' => 'required|url',
         ]);
 
-    return redirect()->back()->with('success', 'Partner berhasil didaftarkan!');
+        $path = $request->file('logo')->store('partners', 'public');
+
+        Partner::create([
+            'name' => $request->name,
+            'logo_path' => $path, 
+            'website_url' => $request->website_url,
+        ]);
+
+        return redirect()->route('admin.partners.index')->with('success', 'Partner berhasil didaftarkan!');
     }
 
     public function update(Request $request, $id)
     {
         $partner = Partner::findOrFail($id);
         $request->validate([
-        'name' => 'required|string|max:255',
-        'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
-        'website_url' => 'required|url',
+            'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', 
+            'website_url' => 'required|url',
         ]);
 
         $logoPath = $partner->logo_path;
         if ($request->hasFile('logo')) {
-        
-        if ($partner->logo_path && Storage::disk('public')->exists($partner->logo_path)) {
-            Storage::disk('public')->delete($partner->logo_path);
-        }
-
-        $logoPath = $request->file('logo')->store('partners', 'public');
+            if ($partner->logo_path && Storage::disk('public')->exists($partner->logo_path)) {
+                Storage::disk('public')->delete($partner->logo_path);
+            }
+            $logoPath = $request->file('logo')->store('partners', 'public');
         }
         
         $partner->update([
-        'name' => $request->name,
-        'logo_path' => $logoPath,
-        'website_url' => $request->website_url,
+            'name' => $request->name,
+            'logo_path' => $logoPath,
+            'website_url' => $request->website_url,
         ]);
 
-        return redirect()->back()->with('success', 'Data partner berhasil diperbarui!');
+        return redirect()->route('admin.partners.index')->with('success', 'Data partner berhasil diperbarui!');
     }
 
     public function destroy($id)
     {
         $partner = Partner::findOrFail($id);
+        
+        if ($partner->logo_path && Storage::disk('public')->exists($partner->logo_path)) {
+            Storage::disk('public')->delete($partner->logo_path);
+        }
+
         $partner->delete();
 
         return redirect()->route('admin.partners.index')->with('success', 'Partner berhasil dihapus!');
