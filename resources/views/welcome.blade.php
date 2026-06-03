@@ -152,4 +152,25 @@
             </div>
         </div>
     </section>
+
+    <section class="bg-slate-50 border-t border-b border-slate-100 py-16 mt-20">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+        <span class="text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full">Official Partners</span>
+        <h2 class="text-3xl font-extrabold text-slate-900 mt-3 mb-2 tracking-tight">Didukung oleh Mitra Terpercaya</h2>
+        <p class="text-slate-500 max-w-md mx-auto text-sm mb-12">Platform kolaborasi digital ekosistem AmikomEventHub bersama instansi dan korporasi edukasi.</p>
+        
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 items-center justify-center">
+            @forelse($partners as $partner)
+                <a href="{{ $partner->logo_url }}" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md hover:border-indigo-500 transition duration-300 group block">
+                    <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" class="h-16 w-full object-contain filter grayscale group-hover:grayscale-0 transition duration-300">
+                    <span class="text-xs font-bold text-slate-600 group-hover:text-indigo-600 transition text-center">{{ $partner->name }}</span>
+                </a> 
+                @empty
+                <div class="col-span-full py-4 text-slate-400 text-sm font-medium">
+                    Belum ada partner resmi terdaftar saat ini.
+                </div>
+            @endforelse
+        </div>
+    </div>
+</section>
 @endsection
