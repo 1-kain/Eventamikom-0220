@@ -12,10 +12,18 @@ use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
-    public function index() {
-        $events = Event::with('category')->latest()->get();
-        return view('admin.events.index', compact('events'));
-    }
+    public function index(Request $request) {
+    $search = $request->query('search');
+
+    $events = Event::with('category')
+        ->when($search, function($query, $search) {
+            return $query->where('title', 'like', '%' . $search . '%');
+        })
+        ->latest()
+        ->get();
+
+    return view('admin.events.index', compact('events', 'search'));
+}
 
     public function create() {
         $categories = Category::all();

@@ -159,14 +159,22 @@
         <h2 class="text-3xl font-extrabold text-slate-900 mt-3 mb-2 tracking-tight">Didukung oleh Mitra Terpercaya</h2>
         <p class="text-slate-500 max-w-md mx-auto text-sm mb-12">Platform kolaborasi digital ekosistem AmikomEventHub bersama instansi dan korporasi edukasi.</p>
         
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 items-center justify-center">
+        <div class="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto px-4">
             @forelse($partners as $partner)
-                <a href="{{ $partner->logo_url }}" target="_blank" rel="noopener noreferrer" class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md hover:border-indigo-500 transition duration-300 group block">
-                    <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" class="h-16 w-full object-contain filter grayscale group-hover:grayscale-0 transition duration-300">
-                    <span class="text-xs font-bold text-slate-600 group-hover:text-indigo-600 transition text-center">{{ $partner->name }}</span>
-                </a> 
-                @empty
-                <div class="col-span-full py-4 text-slate-400 text-sm font-medium">
+                <a href="{{ $partner->website_url }}" target="_blank" rel="noopener noreferrer" class="w-48 sm:w-56 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-3 hover:shadow-md hover:border-indigo-500 transition duration-300 group block">
+                    
+                    <div class="h-16 w-full flex items-center justify-center overflow-hidden">
+                        <img src="{{ asset('storage/' . $partner->logo_path) }}" 
+                            alt="{{ $partner->name }}" 
+                            class="max-h-full max-w-full object-contain transition duration-300">
+                    </div>
+
+                    <span class="text-xs font-bold text-slate-600 group-hover:text-indigo-600 transition text-center mt-2">
+                        {{ $partner->name }}
+                    </span>
+                </a>
+            @empty
+                <div class="w-full py-4 text-slate-400 text-sm font-medium text-center">
                     Belum ada partner resmi terdaftar saat ini.
                 </div>
             @endforelse

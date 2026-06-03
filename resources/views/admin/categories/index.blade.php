@@ -53,7 +53,7 @@
                     <th class="px-8 py-4 font-bold w-20">No</th>
                     <th class="px-8 py-4 font-bold">Nama Kategori</th>
                     <th class="px-8 py-4 font-bold">Slug URL</th>
-                    <th class="px-8 py-4 font-bold text-right">Aksi</th>
+                    <th class="px-8 py-4 font-bold text-right"></th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
