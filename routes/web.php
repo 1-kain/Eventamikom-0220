@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PartnerController;
+use App\Http\Controllers\Admin\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,15 +44,22 @@ Route::get('/checkout',[EventController::class, 'checkout'])->name('checkout');
 
 Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 
+Route::get('/login', function () {
+    return redirect()->route('admin.login');
+})->name('login');
+
 //Rute Admin Area
 Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('events', EventAdminController::class);
-    Route::resource('categories', CategoryController::class);
-    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-    Route::resource('partners', PartnerController::class);
-    // Route::get('/events', [EventAdminController::class, 'index'])->name('events.index');
-    // Route::get('/events/create', [EventAdminController::class, 'create'])->name('events.create');
-    // Route::get('/events/destroy', [EventAdminController::class, 'destroy'])->name('events.destroy');
-    // Route::get('/events/edit', [EventAdminController::class, 'edit'])->name('events.edit');
+    
+    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'login'])->name('login.post');
+    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::resource('events', EventAdminController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); // Walaupun resource sudah ada, ini dipertahankan karena kodemu
+        Route::resource('partners', PartnerController::class);
     });
+});
