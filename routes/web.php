@@ -10,6 +10,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\CheckoutController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -37,12 +38,10 @@ Route::get('/bantuan', function () {
 
 //Rute User Area
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-Route::get('/event/1', [EventController::class, 'show'])->name('event.show');
-
-Route::get('/checkout',[EventController::class, 'checkout'])->name('checkout');
-
+Route::get('/event/{event}', [EventController::class, 'show'])->name('event.show');
 Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
+Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
+Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
 
 Route::get('/login', function () {
     return redirect()->route('admin.login');
@@ -59,7 +58,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         Route::resource('events', EventAdminController::class);
         Route::resource('categories', CategoryController::class);
-        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); // Walaupun resource sudah ada, ini dipertahankan karena kodemu
+        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index'); 
         Route::resource('partners', PartnerController::class);
+        Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     });
 });
