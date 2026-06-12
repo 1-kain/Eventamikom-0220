@@ -12,3 +12,4 @@ Kalvin Wibowo
 <br> Link Tugas 2 Kategori: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin/categories
 <br> Tugas 3 Screenshoot database tabel event: https://imgur.com/a/WUurv2l
 <br> Link Tugas 4 CRUD: https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin
+<br> Link Tugas 8 auth: link publik:https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/, Link admin:https://eventamikom-0220-main-ewuxzg.free.laravel.cloud/admin (admin@amikom.ac.id, password)
