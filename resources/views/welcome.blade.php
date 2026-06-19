@@ -90,7 +90,7 @@
                                 </span>
                                 <a href="{{ route('event.show', $event->id) }}"
                                 class="px-5 py-2 bg-indigo-50 text-indigo-600 rounded-xl font-bold hover:bg-indigo-600 hover:text-white transition">
-                                Lihat Detail detail
+                                Lihat Detail 
                                 </a>
                             </div>
                         </div>
