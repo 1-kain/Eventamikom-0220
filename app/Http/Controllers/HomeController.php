@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category; 
-use App\Models\Partner;  
+use App\Models\Partner;
+use App\Models\Event; 
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -12,6 +13,9 @@ class HomeController extends Controller
     {
         $categories = Category::all();
         $partners = Partner::all();
-        return view('welcome', compact('categories', 'partners'));
+        
+        $events = Event::with('category')->latest()->take(3)->get();
+
+        return view('welcome', compact('categories', 'partners', 'events'));
     }
 }
