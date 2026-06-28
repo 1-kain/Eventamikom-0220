@@ -38,12 +38,17 @@
              },
              // Optional
              onError: function(result){
-                 alert("Pembayaran Gagal!");
+                 alert("Pembayaran gagal. Silakan coba lagi.");
+             },
+             // Optional
+             onClose: function(){
+                 // Tetap di halaman pembayaran saat popup ditutup.
+                 console.log('Midtrans popup ditutup.');
              }
          });
      };
 
-     // Auto trigger
+     // Auto trigger payment popup pada halaman load.
      window.onload = function() {
          document.getElementById('pay-button').click();
      }
