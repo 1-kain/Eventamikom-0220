@@ -28,22 +28,27 @@
      document.getElementById('pay-button').onclick = function () {
          // SnapToken acquired from previous step
          snap.pay('{{ $transaction->snap_token }}', {
-             // Optional
+             
+             // Jika pembayaran benar-benar sukses/lunas
              onSuccess: function(result){
                  window.location.href = "{{ route('checkout.success', $transaction->order_id) }}";
              },
-             // Optional
+             
+             // Jika user sudah memilih metode pembayaran tapi menutup jendela (Status Pending)
              onPending: function(result){
-                 window.location.href = "{{ route('checkout.success', $transaction->order_id) }}";
+                 /* JANGAN REDIRECT KE HALAMAN SUKSES */
+                 alert("Kode pembayaran/QRIS telah dibuat. Silakan selesaikan pembayaran Anda.");
+                 // User akan tetap berada di halaman ini, dan bisa klik tombol "Bayar Sekarang" lagi
              },
-             // Optional
+             
+             // Jika pembayaran gagal
              onError: function(result){
                  alert("Pembayaran gagal. Silakan coba lagi.");
              },
-             // Optional
+             
+             // Jika user menutup jendela SEBELUM memilih metode pembayaran apa pun
              onClose: function(){
-                 // Tetap di halaman pembayaran saat popup ditutup.
-                 console.log('Midtrans popup ditutup.');
+                 alert('Anda menutup jendela pembayaran sebelum transaksi selesai.');
              }
          });
      };
@@ -52,7 +57,7 @@
      window.onload = function() {
          document.getElementById('pay-button').click();
      }
- </script>
+</script>
 <style>
      @keyframes bounce-in {
          0% { transform: scale(0.9); opacity: 0; }

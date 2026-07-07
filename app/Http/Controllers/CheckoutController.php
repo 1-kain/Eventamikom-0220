@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
@@ -62,6 +63,8 @@ class CheckoutController extends Controller
                 'email' => $request->customer_email,
                 'phone' => $request->customer_phone,
             ],
+            // Pastikan Midtrans mengirimkan notification ke endpoint kita
+            'notification_url' => rtrim(env('APP_URL'), '/') . '/midtrans/callback',
         ];
 
         try {
@@ -108,32 +111,98 @@ class CheckoutController extends Controller
         return response()->json(['message' => 'Transaksi dibatalkan dan stok tiket dikembalikan.']);
     }
 
-    public function success($order_id)
-    {
-        // Mengambil daftar kategori untuk keperluan menu footer
-        $categories = \App\Models\Category::all();
+    // public function success($order_id)
+    // {
+    //     // Mengambil daftar kategori untuk keperluan menu footer
+    //     $categories = \App\Models\Category::all();
 
-        $transaction = \App\Models\Transaction::where('order_id', $order_id)->firstOrFail();
+    //     $transaction = \App\Models\Transaction::where('order_id', $order_id)->firstOrFail();
 
-        // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
-        \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-        \Midtrans\Config::$isProduction = false;
+    //     // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
+    //     \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    //     \Midtrans\Config::$isProduction = false;
 
-       try {
-            $midtransStatus = \Midtrans\Transaction::status($order_id);
+    //    try {
+    //         $midtransStatus = \Midtrans\Transaction::status($order_id);
             
-            // Ambil status dengan mengecek apakah dia array atau object
-            $trx_status = is_array($midtransStatus) ? ($midtransStatus['transaction_status'] ?? '') : ($midtransStatus->transaction_status ?? '');
+    //         // Ambil status dengan mengecek apakah dia array atau object
+    //         $trx_status = is_array($midtransStatus) ? ($midtransStatus['transaction_status'] ?? '') : ($midtransStatus->transaction_status ?? '');
 
-            // Hanya ubah status menjadi sukses jika Midtrans mengonfirmasi pembayaran lunas
-            if (in_array($trx_status, ['capture', 'settlement'])) {
-                $transaction->update(['status' => 'success']);
-            }
-        } catch (\Exception $e) {
-            // Jika error (transaksi tidak ada di Midtrans, koneksi terputus), kembalikan ke beranda
-            return redirect()->route('home')->with('error', 'Transaksi tidak ditemukan atau gagal diproses oleh sistem pembayaran.');
+    //         // Hanya ubah status menjadi sukses jika Midtrans mengonfirmasi pembayaran lunas
+    //         if (in_array($trx_status, ['capture', 'settlement'])) {
+    //             $transaction->update(['status' => 'success']);
+    //         }
+    //     } catch (\Exception $e) {
+    //         // Jika error (transaksi tidak ada di Midtrans, koneksi terputus), kembalikan ke beranda
+    //         return redirect()->route('home')->with('error', 'Transaksi tidak ditemukan atau gagal diproses oleh sistem pembayaran.');
+    //     }
+
+    //     return view('checkout.success', compact('transaction','categories'));
+    // }
+    public function success($order_id)
+{
+    // Mengambil daftar kategori untuk keperluan menu footer
+    $categories = \App\Models\Category::all();
+
+    $transaction = \App\Models\Transaction::where('order_id', $order_id)->firstOrFail();
+
+    // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
+    \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
+    \Midtrans\Config::$isProduction = false;
+
+    try {
+        $midtransStatus = \Midtrans\Transaction::status($order_id);
+        
+        // Ambil status dengan mengecek apakah dia array atau object
+        $trx_status = is_array($midtransStatus) ? ($midtransStatus['transaction_status'] ?? '') : ($midtransStatus->transaction_status ?? '');
+
+        // Jika Midtrans mengonfirmasi pembayaran lunas
+        if (in_array($trx_status, ['capture', 'settlement'])) {
+            $transaction->update(['status' => 'success']);
+            
+            // Tampilkan halaman sukses HANYA jika benar-benar lunas
+            return view('checkout.success', compact('transaction','categories'));
+        } else {
+            // JIKA STATUSNYA MASIH PENDING / BELUM LUNAS:
+            // Kembalikan user ke halaman transaksi/pembayaran semula dengan pesan peringatan
+            return redirect()->route('checkout.payment', $order_id)->with('error', 'Pembayaran Anda belum selesai atau masih ditangguhkan.');
         }
 
-        return view('checkout.success', compact('transaction','categories'));
+    } catch (\Exception $e) {
+        // Jika error (transaksi tidak ada di Midtrans, koneksi terputus), kembalikan ke beranda
+        return redirect()->route('home')->with('error', 'Transaksi tidak ditemukan atau gagal diproses oleh sistem pembayaran.');
     }
+}
+
+public function callback(Request $request)
+{
+    // Perekam Log untuk pembuktian
+    \Illuminate\Support\Facades\Log::info('Simulasi Webhook Masuk!', $request->all());
+
+    $order_id = $request->order_id;
+    $status_code = $request->status_code;
+    $gross_amount = $request->gross_amount;
+    $transaction_status = $request->transaction_status;
+    
+    // KOMENTARI SEPANJANG BARIS VALIDASI INI UNTUK SIMULASI LOKAL
+    // $serverKey = env('MIDTRANS_SERVER_KEY');
+    // $hashed = hash("sha512", $order_id . $status_code . $gross_amount . $serverKey);
+    // if ($hashed == $request->signature_key) {
+        
+        $transaction = \App\Models\Transaction::where('order_id', $order_id)->first();
+        
+        if ($transaction) {
+            // Jika statusnya settlement atau capture, ubah ke success
+            if ($transaction_status == 'capture' || $transaction_status == 'settlement') {
+                
+                // Sesuaikan kata 'success' di bawah ini dengan enum/string di databasemu (misal: 'Berhasil' atau 'success')
+                $transaction->update(['status' => 'success']); 
+                
+                return response()->json(['message' => 'Status berhasil diperbarui secara lokal!']);
+            }
+        }
+    // } // JANGAN LUPA KOMENTARI TUTUP KURUNG NYA JUGA
+
+    return response()->json(['message' => 'Data diterima tapi tidak diproses'], 400);
+}
 }

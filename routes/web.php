@@ -11,6 +11,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MidtransWebhookController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -64,6 +65,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
     });
 });
 
-Route::get('/payment/{order_id}', [\App\Http\Controllers\CheckoutController::class, 'payment'])->name('checkout.payment');
-Route::post('/payment/{order_id}/cancel', [\App\Http\Controllers\CheckoutController::class, 'cancel'])->name('checkout.cancel');
-Route::get('/success/{order_id}', [\App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
+Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::post('/payment/{order_id}/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+Route::get('/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
+Route::post('/midtrans/callback', [MidtransWebhookController::class, 'handle']);
+
+Route::post('/midtrans/callback', [CheckoutController::class, 'callback']);
