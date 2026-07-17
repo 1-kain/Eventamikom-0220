@@ -19,34 +19,44 @@ class CheckoutController extends Controller
 
     public function store(Request $request, Event $event)
     {
-            $request->validate([
-                'customer_name'  => 'required|string|max:255',
-                'customer_email' => 'required|email|max:255',
-                'customer_phone' => 'required|string|max:20',
-            ]);
+        $request->validate([
+            'customer_name'  => 'required|string|max:255',
+            'customer_email' => 'required|email|max:255',
+            'customer_phone' => 'required|string|max:20',
+        ]);
 
-            if ($event->stock <= 0) {
-                return back()->with('error', 'Mohon maaf, tiket untuk acara ini sudah habis.');
+        if ($event->stock <= 0) {
+            return back()->with('error', 'Mohon maaf, tiket untuk acara ini sudah habis.');
+        }
+
+        $orderId = 'TRX-' . time() . '-' . Str::random(5);
+        $totalPrice = $event->price + 5000; 
+
+        DB::transaction(function () use ($event, $orderId, $request, $totalPrice, &$transaction) {
+            
+            // 🌟 LANGKAH BARU: Generate Kode Tiket Unik (Contoh: TKT-A89X7Z)
+            $ticketCode = 'TKT-' . strtoupper(Str::random(6));
+            
+            // Proteksi berlapis: Pastikan kode tidak kembar di database
+            while (Transaction::where('ticket_code', $ticketCode)->exists()) {
+                $ticketCode = 'TKT-' . strtoupper(Str::random(6));
             }
 
-            $orderId = 'TRX-' . time() . '-' . Str::random(5);
-            $totalPrice = $event->price + 5000; 
+            $transaction = Transaction::create([
+                'event_id'       => $event->id,
+                'order_id'       => $orderId,
+                'ticket_code'    => $ticketCode, // 🌟 Masuk ke kolom baru
+                'customer_name'  => $request->customer_name,
+                'customer_email' => $request->customer_email,
+                'customer_phone' => $request->customer_phone,
+                'total_price'    => $totalPrice,
+                'status'         => 'Pending', 
+            ]);
 
-            DB::transaction(function () use ($event, $orderId, $request, $totalPrice, &$transaction) {
-                $transaction = Transaction::create([
-                    'event_id'       => $event->id,
-                    'order_id'       => $orderId,
-                    'customer_name'  => $request->customer_name,
-                    'customer_email' => $request->customer_email,
-                    'customer_phone' => $request->customer_phone,
-                    'total_price'    => $totalPrice,
-                    'status'         => 'Pending', 
-                ]);
+            $event->decrement('stock');
+        });
 
-                $event->decrement('stock');
-            });
-
-            
+        // Konfigurasi Midtrans
         \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
         \Midtrans\Config::$isProduction = false; // Mode Sandbox!
         \Midtrans\Config::$isSanitized = true;
@@ -63,24 +73,18 @@ class CheckoutController extends Controller
                 'email' => $request->customer_email,
                 'phone' => $request->customer_phone,
             ],
-            // Pastikan Midtrans mengirimkan notification ke endpoint kita
             'notification_url' => rtrim(env('APP_URL'), '/') . '/midtrans/callback',
         ];
 
         try {
-            // Perintah Tembak Generate Snap Token
             $snapToken = \Midtrans\Snap::getSnapToken($params);
-
-            // Update rekaman kita bahwa transaksi terkait sudah memiliki id token pelunasan
             $transaction->update(['snap_token' => $snapToken]);
 
-            // Redirect ke halaman antarmuka pembayaran final pelanggan
             return redirect()->route('checkout.payment', $transaction->order_id);
 
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal memproses pembayaran jaringan: ' . $e->getMessage());
         }
-    
     }
 
     public function payment($order_id)
@@ -111,34 +115,7 @@ class CheckoutController extends Controller
         return response()->json(['message' => 'Transaksi dibatalkan dan stok tiket dikembalikan.']);
     }
 
-    // public function success($order_id)
-    // {
-    //     // Mengambil daftar kategori untuk keperluan menu footer
-    //     $categories = \App\Models\Category::all();
-
-    //     $transaction = \App\Models\Transaction::where('order_id', $order_id)->firstOrFail();
-
-    //     // Validasi status pembayaran asli dari Midtrans (Mencegah manipulasi URL)
-    //     \Midtrans\Config::$serverKey = env('MIDTRANS_SERVER_KEY');
-    //     \Midtrans\Config::$isProduction = false;
-
-    //    try {
-    //         $midtransStatus = \Midtrans\Transaction::status($order_id);
-            
-    //         // Ambil status dengan mengecek apakah dia array atau object
-    //         $trx_status = is_array($midtransStatus) ? ($midtransStatus['transaction_status'] ?? '') : ($midtransStatus->transaction_status ?? '');
-
-    //         // Hanya ubah status menjadi sukses jika Midtrans mengonfirmasi pembayaran lunas
-    //         if (in_array($trx_status, ['capture', 'settlement'])) {
-    //             $transaction->update(['status' => 'success']);
-    //         }
-    //     } catch (\Exception $e) {
-    //         // Jika error (transaksi tidak ada di Midtrans, koneksi terputus), kembalikan ke beranda
-    //         return redirect()->route('home')->with('error', 'Transaksi tidak ditemukan atau gagal diproses oleh sistem pembayaran.');
-    //     }
-
-    //     return view('checkout.success', compact('transaction','categories'));
-    // }
+    
     public function success($order_id)
 {
     // Mengambil daftar kategori untuk keperluan menu footer

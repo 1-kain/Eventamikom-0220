@@ -12,6 +12,7 @@
             <thead class="bg-slate-50 border-b border-slate-200 text-xs text-slate-500 uppercase tracking-wider font-bold">
                 <tr>
                     <th class="px-8 py-4">Order ID & Waktu</th>
+                    <th class="px-8 py-4">Kode Tiket</th> <!-- 🌟 KOLOM BARU UNTUK UX ADMIN -->
                     <th class="px-8 py-4">Pembeli</th>
                     <th class="px-8 py-4">Event</th>
                     <th class="px-8 py-4">Status</th>
@@ -25,6 +26,18 @@
                         <p class="font-black text-slate-900">{{ $trx->order_id }}</p>
                         <p class="text-xs text-slate-500 font-medium">{{ $trx->created_at->format('d M Y, H:i') }}</p>
                     </td>
+                    
+                    <!-- 🌟 ISI DATA KODE TIKET DENGAN BADGE STYLING -->
+                    <td class="px-8 py-6">
+                        @if($trx->ticket_code)
+                            <span class="px-2.5 py-1.5 bg-slate-100 text-slate-800 rounded-lg font-mono text-xs font-bold border border-slate-200 tracking-wider">
+                                {{ $trx->ticket_code }}
+                            </span>
+                        @else
+                            <span class="text-xs text-slate-400 italic">Tidak Ada Kode</span>
+                        @endif
+                    </td>
+
                     <td class="px-8 py-6">
                         <p class="font-bold text-slate-800">{{ $trx->customer_name }}</p>
                         <p class="text-xs text-slate-500">{{ $trx->customer_email }}</p>
@@ -48,7 +61,8 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-8 py-10 text-center text-slate-500 font-medium">Belum ada transaksi tiket.</td>
+                    <!-- 🌟 COLSPAN DIUBAH MENJADI 6 AGAR SESUAI JUMLAH KOLOM -->
+                    <td colspan="6" class="px-8 py-10 text-center text-slate-500 font-medium">Belum ada transaksi tiket.</td>
                 </tr>
                 @endforelse
             </tbody>
