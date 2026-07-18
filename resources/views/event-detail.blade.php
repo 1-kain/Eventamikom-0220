@@ -8,15 +8,37 @@
                     class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white">
                 <div class="mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
                     <h4 class="font-bold mb-4">Penyelenggara</h4>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
-                            AB</div>
-                        <div>
-                            <p class="font-bold text-slate-800">ABP Productions</p>
-                            <p class="text-xs text-slate-500">Verified Organizer</p>
-                        </div>
-                    </div>
+
+                    @if($event->organizer)
+                        <!-- 🌟 JALUR 2: Kotak Penyelenggara dibungkus Link. Ditambahkan efek hover agar interaktif -->
+                        <a href="{{ route('organizers.show', $event->organizer->id) }}" class="flex items-center gap-4 group p-2 -mx-2 rounded-2xl hover:bg-slate-50 transition duration-200">
+                            
+                            <!-- Avatar Dinamis (2 Huruf Depan) -->
+                            <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold group-hover:scale-105 transition transform duration-200">
+                                {{ strtoupper(substr($event->organizer->name, 0, 2)) }}
+                            </div>
+                            
+                            <div>
+                                <!-- Nama Dinamis -->
+                                <p class="font-bold text-slate-800 group-hover:text-indigo-600 transition duration-200">
+                                    {{ $event->organizer->name }}
+                                </p>
+                                
+                                <!-- Tampilan Nilai Bintang Akumulatif -->
+                                <p class="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+                                    @if($organizerRating)
+                                        <span class="text-amber-500 font-bold flex items-center gap-0.5">
+                                            ★ {{ $organizerRating }}
+                                        </span>
+                                        <span class="text-slate-300">•</span>
+                                    @endif
+                                    <span>Verified Organizer</span>
+                                </p>
+                            </div>
+                        </a>
+                    @else
+                        <p class="text-sm text-slate-400 italic">Data penyelenggara tidak terikat.</p>
+                    @endif
                 </div>
             </div>
         </div>
@@ -71,9 +93,27 @@
                         </p>
                     </div>
                     <div>
-                        <a href="{{ route('checkout.create', $event->id) }}" class="inline-block px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition">
-                            Pesan Sekarang
-                        </a>
+                        @php
+                            // Cek apakah waktu event sudah terlewat dari waktu sekarang
+                            $isPastEvent = \Carbon\Carbon::parse($event->date)->isPast();
+                        @endphp
+
+                        @if($event->stock > 0 && !$isPastEvent)
+                            <!-- 🟢 KONDISI 1: Event Aktif & Stok Ada -->
+                            <a href="{{ route('checkout.create', $event->id) }}" class="inline-block px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition">
+                                Pesan Sekarang
+                            </a>
+                        @elseif($isPastEvent)
+                            <!-- 🔴 KONDISI 2: Waktu Event Sudah Lewat -->
+                            <button disabled class="inline-block px-10 py-5 bg-slate-400 text-slate-200 rounded-2xl font-black text-xl cursor-not-allowed shadow-inner">
+                                Event Selesai
+                            </button>
+                        @else
+                            <!-- 🟡 KONDISI 3: Waktu Belum Lewat tapi Stok Habis (Stok <= 0) -->
+                            <button disabled class="inline-block px-10 py-5 bg-slate-400 text-slate-200 rounded-2xl font-black text-xl cursor-not-allowed shadow-inner">
+                                Tiket Habis
+                            </button>
+                        @endif
                     </div>
                 </div>
                 <!-- Decoration -->

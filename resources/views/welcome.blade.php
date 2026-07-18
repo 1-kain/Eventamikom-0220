@@ -103,6 +103,25 @@
                 </div>
         </section>
 
+        <!-- ==========================================
+     🌟 JALUR 1: BANNER JEMBATAN DIREKTORI ORGANIZER
+     ========================================== -->
+<section class="max-w-7xl mx-auto px-6 py-8">
+    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-xl shadow-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div>
+            <h3 class="text-2xl font-extrabold text-white tracking-tight">Ingin Menjelajahi Vendor Lebih Dekat?</h3>
+            <p class="text-indigo-200/80 text-sm mt-2 max-w-xl leading-relaxed">
+                Temukan profil lengkap para promotor hebat di balik layar panggung acara favorit Anda, periksa kredibilitas mereka, dan baca ulasan jujur sesama pengunjung.
+            </p>
+        </div>
+        <div class="shrink-0 w-full md:w-auto">
+            <a href="{{ route('organizers.index') }}" class="block w-full text-center px-8 py-4 bg-white hover:bg-indigo-50 text-slate-900 font-bold rounded-2xl shadow-md transition duration-200 hover:scale-[1.02]">
+                Cek Penyelenggara Kami →
+            </a>
+        </div>
+    </div>
+</section>
+
     <section class="bg-slate-50 border-t border-b border-slate-100 py-16 mt-20">
     <div class="max-w-7xl mx-auto px-6 text-center">
         <span class="text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full">Official Partners</span>

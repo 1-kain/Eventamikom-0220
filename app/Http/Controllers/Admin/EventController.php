@@ -4,33 +4,40 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-
-//
 use App\Models\Event;
 use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
 
 class EventController extends Controller
 {
-    public function index(Request $request) {
-    $search = $request->query('search');
+    public function index(Request $request) 
+    {
+        $search = $request->query('search');
+        $user = auth()->user();
 
-    $events = Event::with('category')
-        ->when($search, function($query, $search) {
-            return $query->where('title', 'like', '%' . $search . '%');
-        })
-        ->latest()
-        ->get();
+        // ISOLASI DATA: Saring event jika yang login adalah organizer
+        $events = Event::with('category')
+            ->when($user->role === 'organizer', function($query) use ($user) {
+                return $query->where('user_id', $user->id);
+            })
+            ->when($search, function($query, $search) {
+                return $query->where('title', 'like', '%' . $search . '%');
+            })
+            ->latest()
+            ->get();
 
-    return view('admin.events.index', compact('events', 'search'));
-}
+        // FIX: Keduanya diarahkan ke view yang sama karena view ini sudah dinamis
+        return view('admin.events.index', compact('events', 'search'));
+    }
 
-    public function create() {
+    public function create() 
+    {
         $categories = Category::all();
         return view('admin.events.create', compact('categories'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request) 
+    {
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'title'       => 'required|string|max:255',
@@ -46,16 +53,29 @@ class EventController extends Controller
             $data['poster_path'] = $request->file('poster')->store('posters', 'public');
         }
 
+        $data['user_id'] = auth()->id();
+
         Event::create($data);
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dibuat.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil dibuat.');
     }
 
-    public function edit(Event $event) {
+    public function edit(Event $event) 
+    {
+        // PROTEKSI KEAMANAN: Cegah organizer lain mengedit data yang bukan miliknya
+        if (auth()->user()->role === 'organizer' && $event->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah event ini.');
+        }
+
         $categories = Category::all();
         return view('admin.events.edit', compact('event', 'categories'));
     }
 
-    public function update(Request $request, Event $event) {
+    public function update(Request $request, Event $event) 
+    {
+        if (auth()->user()->role === 'organizer' && $event->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk memperbarui event ini.');
+        }
+
         $data = $request->validate([
             'category_id' => 'required',
             'title'       => 'required',
@@ -73,12 +93,17 @@ class EventController extends Controller
         }
 
         $event->update($data);
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil diperbarui.');
     }
 
-    public function destroy(Event $event) {
+    public function destroy(Event $event) 
+    {
+        if (auth()->user()->role === 'organizer' && $event->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus event ini.');
+        }
+
         if ($event->poster_path) Storage::disk('public')->delete($event->poster_path);
         $event->delete();
-        return redirect()->route('admin.events.index')->with('success', 'Event berhasil dihapus.');
+        return redirect()->route('organizer.events.index')->with('success', 'Event berhasil dihapus.');
     }
 }

@@ -20,7 +20,21 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->route('admin.dashboard'); 
+            
+            $role = Auth::user()->role;
+            
+            // 🌟 REDIRECT MULTI-TENANT BERDASARKAN RUANGAN
+            if ($role === 'superadmin') {
+                return redirect()->route('admin.dashboard');
+            } elseif ($role === 'organizer') {
+                return redirect()->route('organizer.dashboard'); 
+            }
+            
+            // Pengamanan tambahan jika ada Role di luar skenario masuk ke area admin
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'Akses ditolak. Akun Anda tidak memiliki otoritas di area ini.',
+            ]);
         }
 
         return back()->withErrors([

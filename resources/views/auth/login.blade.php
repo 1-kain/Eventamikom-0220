@@ -27,7 +27,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.login.post') }}" method="POST" class="space-y-6">
+        <form action="{{ route('login.post') }}" method="POST" class="space-y-6">
             @csrf
             <div>
                 <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Email</label>
@@ -39,6 +39,25 @@
             </div>
             <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xl shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition">Masuk</button>
         </form>
+
+        <!-- ========================================== -->
+        <!-- ELEMEN BARU: PEMBATAS & TOMBOL GOOGLE SSO  -->
+        <!-- ========================================== -->
+        <div class="mt-6 space-y-4">
+            <div class="relative flex items-center py-2">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-slate-400 text-sm font-semibold uppercase tracking-wider">atau</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <a href="{{ route('auth.google') }}" class="w-full py-4 bg-white border-2 border-slate-100 text-slate-700 rounded-2xl font-bold text-base shadow-sm hover:bg-slate-50 hover:border-slate-200 transition flex items-center justify-center gap-3">
+                <svg class="w-6 h-6" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.136 4.114A5.76 5.76 0 0 1 8.2 12.76a5.76 5.76 0 0 1 5.791-5.76c1.55 0 2.968.568 4.072 1.503l3.193-3.193A9.92 9.92 0 0 0 13.992 2a9.97 9.97 0 0 0-9.965 9.96C4.027 17.485 8.494 22 13.992 22c5.448 0 9.898-4.415 9.898-9.96a10.07 10.07 0 0 0-.164-1.755H12.24Z"/>
+                </svg>
+                <span>Masuk dengan Google</span>
+            </a>
+        </div>
+        <!-- ========================================== -->
     </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Admin Dashboard' }} - AmikomEventHub</title>
+    <title>{{ $title ?? 'Dashboard' }} - AmikomEventHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Plus Jakarta Sans', sans-serif; }</style>
@@ -14,43 +14,69 @@
             <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-900 font-bold text-xl">AH</div>
             <span class="text-xl font-bold text-white tracking-tight">AmikomEventHub</span>
         </div>
+        
         <nav class="flex-1 space-y-2 overflow-y-auto">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 px-2">Main Menu</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-4 px-2">
+                Main Menu ({{ ucfirst(auth()->user()->role) }})
+            </p>
             
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-                Dashboard
-            </a>
-            
-            <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('events.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-                Kelola Event
-            </a>
-            
-            <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-                Kelola Kategori
-            </a>
-            
-            <a href="{{ route('admin.partners.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.partners.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-                Kelola Partner
-            </a>
-            
-            <a href="{{ route('admin.transactions.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.transactions.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
-                Kelola Transaksi
-            </a>
-
-            <!-- INTEGRASI BARU: Menu Scan Tiket (Aplikasi Penjaga Pintu) -->
-            <a href="{{ route('admin.scan.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.scan.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+            {{-- ========================================================== --}}
+            {{-- 🔴 MENU KHUSUS SUPERADMIN --}}
+            {{-- ========================================================== --}}
+            @if(auth()->user()->role === 'superadmin')
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Dashboard Superadmin
+                </a>
                 
-                Scan Tiket
-            </a>
-
-            <!-- INTEGRASI BARU: Menu Kelola Sertifikat -->
-            <a href="{{ route('admin.certificate.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.certificate.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Kategori
+                </a>
                 
-                Kelola Sertifikat
-            </a>
+                <a href="{{ route('admin.partners.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.partners.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Partner
+                </a>
+
+                {{-- 🌟 MENAMBAHKAN KENDALI UTAMA SUPERADMIN --}}
+                <a href="{{ route('admin.organizers.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.organizers.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Vendor (Organizer)
+                </a>
+
+                <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Moderasi Event Global
+                </a>
+
+                <a href="{{ route('admin.transactions.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('admin.transactions.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Transaksi Global
+                </a>
+
+            {{-- ========================================================== --}}
+            {{-- 🔵 MENU KHUSUS ORGANIZER (PANITIA) --}}
+            {{-- ========================================================== --}}
+            @elseif(auth()->user()->role === 'organizer')
+                <a href="{{ route('organizer.dashboard') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('organizer.dashboard') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Dashboard Organizer
+                </a>
+                
+                <a href="{{ route('organizer.events.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('organizer.events.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Event
+                </a>
+                
+                <a href="{{ route('organizer.transactions.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('organizer.transactions.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Transaksi
+                </a>
+
+                <a href="{{ route('organizer.scan.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('organizer.scan.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Scan Tiket
+                </a>
+
+                <a href="{{ route('organizer.certificate.index') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-indigo-800 {{ request()->routeIs('organizer.certificate.*') ? 'bg-indigo-800 text-white' : '' }} rounded-xl font-bold transition">
+                    Kelola Sertifikat
+                </a>
+            @endif
         </nav>
+
         <div class="pt-6 border-t border-indigo-800">
-            <form action="{{ route('admin.logout') }}" method="POST">
+            <form action="{{ route('logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 text-indigo-300 hover:text-white transition font-medium text-left">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

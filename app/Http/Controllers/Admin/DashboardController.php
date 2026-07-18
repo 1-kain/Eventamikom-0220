@@ -12,18 +12,34 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $user = auth()->user();
         $completedStatuses = ['success', 'settlement', 'capture', 'paid'];
 
-        $totalRevenue = Transaction::whereIn(DB::raw('LOWER(status)'), $completedStatuses)
-            ->sum('total_price');
+        // 1. Inisialisasi Query Dasar
+        $revenueQuery = Transaction::whereIn(DB::raw('LOWER(status)'), $completedStatuses);
+        $ticketQuery = Transaction::whereIn(DB::raw('LOWER(status)'), $completedStatuses);
+        $pendingQuery = Transaction::whereRaw('LOWER(status) = ?', ['pending']);
+        $recentQuery = Transaction::with('event')->latest();
+        $eventQuery = Event::where('date', '>=', now());
 
-        $ticketsSold = Transaction::whereIn(DB::raw('LOWER(status)'), $completedStatuses)
-            ->count();
+        // 🌟 ISOLASI DATA DENGAN KONDISI ROLE
+        if ($user->role === 'organizer') {
+            $revenueQuery->whereHas('event', function($q) use ($user) { $q->where('user_id', $user->id); });
+            $ticketQuery->whereHas('event', function($q) use ($user) { $q->where('user_id', $user->id); });
+            $pendingQuery->whereHas('event', function($q) use ($user) { $q->where('user_id', $user->id); });
+            $recentQuery->whereHas('event', function($q) use ($user) { $q->where('user_id', $user->id); });
+            $eventQuery->where('user_id', $user->id);
+        }
 
-        $activeEvents = Event::count();
-        $pendingOrders = Transaction::whereRaw('LOWER(status) = ?', ['pending'])->count();
-        $recentTransactions = Transaction::with('event')->latest()->take(5)->get();
+        // 2. Eksekusi Perhitungan Hasil Filter
+        $totalRevenue = $revenueQuery->sum('total_price');
+        $ticketsSold  = $ticketQuery->count();
+        $activeEvents = $eventQuery->count();
+        $pendingOrders = $pendingQuery->count();
+        $recentTransactions = $recentQuery->take(5)->get();
 
+        // Catatan: Karena sidebar kamu di layouts/admin.blade.php sudah dinamis, 
+        // kamu bisa tetap memakai satu file view 'admin.dashboard' dengan aman.
         return view('admin.dashboard', compact(
             'totalRevenue',
             'ticketsSold',
@@ -31,22 +47,5 @@ class DashboardController extends Controller
             'pendingOrders',
             'recentTransactions'
         ));
-
-        // 1. Menjumlahkan semua nominal total_price dari kolom Transaksi Lunas
-        $totalRevenue = Transaction::whereIn('status', ['settlement', 'success'])->sum('total_price');
-        
-        // 2. Menghitung Berapa orang tamu yang tiketnya sudah Lunas
-        $ticketsSold = Transaction::whereIn('status', ['settlement', 'success'])->count();
-        
-        // 3. Menghitung Jumlah Acara Mendatang yang aktif diselenggarakan
-        $activeEvents = Event::where('date', '>=', now())->count();
-        
-        // 4. Menghitung Transaksi Ngadat (Status belum dibayar pelanggan / Expired)
-        $pendingOrders = Transaction::where('status', 'pending')->count();
-        // 5. Menyertakan 5 daftar riwayat pesanan (History) paling mutakhir di panel
-        $recentTransactions = Transaction::with('event')->latest()->take(5)->get();
-
-        return view('admin.dashboard', compact('totalRevenue', 'ticketsSold', 'activeEvents', 'pendingOrders', 'recentTransactions'));
-    
     }
 }

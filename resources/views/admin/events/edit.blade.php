@@ -7,7 +7,8 @@
 </header>
 
 <div class="bg-white rounded-[2.5rem] border border-slate-100 p-10 shadow-sm max-w-4xl">
-    <form action="{{ route('admin.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <!-- 🌟 UBAH: admin.events.update -> organizer.events.update -->
+    <form action="{{ route('organizer.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -71,7 +72,8 @@
         </div>
 
         <div class="flex justify-end gap-4 mt-10 pt-6 border-t border-slate-100">
-            <a href="{{ route('admin.events.index') }}" class="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 transition">Batal</a>
+            <!-- 🌟 UBAH: admin.events.index -> organizer.events.index -->
+            <a href="{{ route('organizer.events.index') }}" class="px-6 py-3 font-bold text-slate-400 hover:text-slate-600 transition">Batal</a>
             <button type="submit" class="px-10 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transform active:scale-95 transition">
                 Simpan Perubahan
             </button>
