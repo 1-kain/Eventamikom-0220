@@ -19,34 +19,47 @@ class OrganizerController extends Controller
 
     // 2. HALAMAN DETAIL ORGANIZER: Kiri Profil, Tengah Ulasan, Kanan Poster Aktif & Selesai
     public function show($id)
-    {
-        $organizer = User::where('role', 'organizer')->findOrFail($id);
-        $now = Carbon::now();
+{
+    $organizer = User::where('role', 'organizer')->findOrFail($id);
+    $now = Carbon::now();
+    $userId = auth()->id();
 
-        // 🌟 LOGIKA EVENT AKTIF: Stok tiket ada DAN acara belum lewat
-        $activeEvents = Event::where('user_id', $organizer->id)
-            ->where('stock', '>', 0)
-            ->where('date', '>=', $now)
-            ->latest()
-            ->get();
+    // 🌟 1. Event Aktif
+    $activeEvents = Event::where('user_id', $organizer->id)
+        ->where('stock', '>', 0)
+        ->where('date', '>=', $now)
+        ->latest()
+        ->get();
 
-        // 🌟 LOGIKA EVENT SELESAI: Stok tiket habis ATAU acara sudah terlewat
-        $pastEvents = Event::where('user_id', $organizer->id)
-            ->where(function ($query) use ($now) {
-                $query->where('stock', '<=', 0)
-                      ->orWhere('date', '<', $now);
+    // 🌟 2. Event Selesai
+    $pastEvents = Event::where('user_id', $organizer->id)
+        ->where(function ($query) use ($now) {
+            $query->where('stock', '<=', 0)
+                  ->orWhere('date', '<', $now);
+        })
+        ->latest()
+        ->get();
+
+    // 🌟 3. Tarik Semua Ulasan
+    $reviews = Review::where('organizer_id', $organizer->id)
+        ->with(['user', 'event'])
+        ->latest()
+        ->get();
+
+    // 🌟 4. LOGIKA SMART BUTTON: Cek apakah user berhak menulis ulasan
+    $canReview = false;
+    if ($userId) {
+        $canReview = Event::where('user_id', $organizer->id)
+            ->where('date', '<', $now) // Tanggal event sudah berlalu
+            ->whereHas('transactions', function ($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->where('status', 'success'); // Transaksi sah
             })
-            ->latest()
-            ->get();
-
-        // Tarik semua ulasan yang ditujukan untuk EO ini
-        $reviews = Review::where('organizer_id', $organizer->id)
-            ->with(['user', 'event'])
-            ->latest()
-            ->get();
-
-        return view('organizers.show', compact('organizer', 'activeEvents', 'pastEvents', 'reviews'));
+            ->exists(); // Cukup kembalikan true/false
     }
+
+    return view('organizers.show', compact('organizer', 'activeEvents', 'pastEvents', 'reviews', 'canReview'));
+}
 
     // 3. HALAMAN FORM REVIEW: Menampilkan form jika lolos validasi
     public function createReview($id)

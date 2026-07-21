@@ -52,12 +52,20 @@
             <!-- 🌟 TOMBOL STICKY DI BAWAH TENGAH -->
             <div class="sticky bottom-8 mt-auto w-full z-10">
                 <div class="bg-white/80 backdrop-blur-md p-4 rounded-2xl border border-indigo-100 shadow-[0_-10px_40px_-15px_rgba(79,70,229,0.3)]">
-                    <a href="{{ route('review.create', $organizer->id) }}" class="block w-full text-center py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition transform hover:-translate-y-1">
-                        Ayo Tulis Review Anda
-                    </a>
+                    @if($canReview)
+                        {{-- Tombol Aktif (Hijau/Indigo) Jika Memenuhi Syarat --}}
+                        <a href="{{ route('review.create', $organizer->id) }}" class="block w-full text-center py-3.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition transform hover:-translate-y-1">
+                            Ayo Tulis Review Anda
+                        </a>
+                    @else
+                        {{-- Tombol Mati (Abu-abu) Jika Belum Ada Event Selesai yang Dibeli --}}
+                        <button disabled class="block w-full text-center py-3.5 bg-gray-200 text-gray-400 font-bold rounded-xl cursor-not-allowed" title="Ulasan hanya dapat diberikan jika Anda telah menghadiri event yang telah selesai dari vendor ini.">
+                            Review Tersedia Setelah Event Selesai
+                        </button>
+                    @endif
                 </div>
             </div>
-        </div>
+        </div> {{-- 🔥 PERBAIKAN: Tag penutup untuk lg:col-span-6 dipasang di sini --}}
 
         <!-- 3. KANAN: Poster Event (Ambil 3 Kolom) -->
         <div class="lg:col-span-3 space-y-10">
